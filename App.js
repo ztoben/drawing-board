@@ -1,16 +1,25 @@
 import React from 'react';
 import { GLView } from 'expo';
 import Expo2DContext from 'expo-2d-context';
-import { StyleSheet, Text, View, PanResponder } from 'react-native';
+import { StyleSheet, View, PanResponder } from 'react-native';
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      lineWidth: 5,
+      strokeStyle: 'black'
+    };
+
     this._ctx = undefined;
     this._prevX = undefined;
     this._prevY = undefined;
-    this._panResponder = PanResponder.create({
-      // Ask to be the responder:
+    this._panResponder = this._createPanResponder();
+  }
+
+  _createPanResponder = () => {
+    return PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onStartShouldSetPanResponderCapture: () => true,
       onMoveShouldSetPanResponder: () => true,
@@ -34,7 +43,8 @@ export default class App extends React.Component {
           this._ctx.beginPath();
           this._ctx.moveTo(this._prevX, this._prevY);
           this._ctx.lineTo(x, y);
-          this._ctx.lineWidth = 5;
+          this._ctx.strokeStyle = this.state.strokeStyle;
+          this._ctx.lineWidth = this.state.lineWidth;
           this._ctx.stroke();
           this._ctx.closePath();
           this._ctx.flush();
@@ -48,7 +58,7 @@ export default class App extends React.Component {
         this._prevY = undefined;
       },
     });
-  }
+  };
 
   _onGLContextCreate = (gl) => {
     this._ctx = new Expo2DContext(gl);
