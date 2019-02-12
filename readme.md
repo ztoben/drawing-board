@@ -1,5 +1,5 @@
 ## Drawing Board
-*A drawing app for IOS built with Expo*
+*A drawing app for IOS built with Expo and `expo-2d-context`.*
 
 <img src="https://user-images.githubusercontent.com/4007345/52668267-ba01bb00-2ed8-11e9-99a9-d2c9dcb6f474.gif" height="400"/>
 
