@@ -1,8 +1,18 @@
 import React from 'react';
-import { GLView } from 'expo';
+import { GLView, MediaLibrary, Permissions } from 'expo';
 import Expo2DContext from 'expo-2d-context';
-import { StyleSheet, View, PanResponder, SafeAreaView, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import {
+  Alert,
+  PanResponder,
+  SafeAreaView,
+  ScrollView,
+  Slider,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
 const colors = [
   'black',
@@ -23,14 +33,21 @@ export default class App extends React.Component {
 
     this.state = {
       lineWidth: 5,
-      strokeStyle: colors[0]
+      strokeStyle: colors[0],
+      hasCameraRollPermission: null,
     };
 
+    this._glCanvas = undefined;
     this._ctx = undefined;
     this._prevX = undefined;
     this._prevY = undefined;
     this._panResponder = this._createPanResponder();
     this._locationPageOffset = 180;
+  }
+
+  async componentDidMount() {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    this.setState({ hasCameraRollPermission: status === 'granted' });
   }
 
   drawSegment({x, y, prevX, prevY, strokeStyle, lineWidth}) {
@@ -87,49 +104,76 @@ export default class App extends React.Component {
   };
 
   _clearCanvas = () => {
-    this._ctx.clearRect(0, 0, 5000, 5000);
+    this._ctx.clearRect(0, 0, this._ctx.width, this._ctx.height);
     this._ctx.flush();
+  };
+
+  _saveCanvas = async () => {
+    const {uri} = await this._glCanvas.takeSnapshotAsync();
+    await MediaLibrary.createAssetAsync(uri);
+
+    Alert.alert('', 'Photo has been saved.')
   };
 
   _updateStrokeStyle = (strokeStyle) => {
     this.setState({strokeStyle});
   };
 
+  _updateLineWidth = (lineWidth) => {
+    this.setState({lineWidth: parseFloat(lineWidth)});
+  };
+
   render() {
+    const {lineWidth, strokeStyle, hasCameraRollPermission} = this.state;
+
     return (
       <SafeAreaView style={styles.pageContainer}>
         <View style={styles.buttonContainer}>
           <Text style={styles.headerText}>Drawing Board</Text>
           <Ionicons style={styles.iconButtons} name="ios-trash" size={24} color="black" onPress={this._clearCanvas} />
-          <Ionicons style={styles.iconButtons} name="ios-save" size={24} color="black" />
+          {hasCameraRollPermission &&
+            <Ionicons style={styles.iconButtons} name="ios-save" size={24} color="black" onPress={this._saveCanvas} />}
         </View>
         <View style={styles.container}>
           <GLView
+            ref={(glc) => this._glCanvas = glc}
             {...this._panResponder.panHandlers}
             style={styles.glViewContainer}
             onContextCreate={this._onGLContextCreate}
           />
-          <ScrollView
-            horizontal
-            contentContainerStyle={styles.center}
-            style={styles.colorPickerContainer}
-          >
-            {colors.map(color => {
-              return <TouchableOpacity
-                key={color}
-                onPress={() => this._updateStrokeStyle(color)}
-                style={{
-                  backgroundColor: color,
-                  borderRadius: 50,
-                  borderWidth: 1,
-                  borderColor: 'black',
-                  width: this.state.strokeStyle === color ? 40 : 30,
-                  height: this.state.strokeStyle === color ? 40 : 30,
-                  margin: 10
-                }}
-              />;
-            })}
-          </ScrollView>
+          <View style={styles.toolsContainer}>
+            <Slider
+              style={styles.brushWidthSlider}
+              step={1}
+              minimumTrackTintColor={strokeStyle}
+              minimumValue={1}
+              maximumValue={20}
+              onValueChange={val => this._updateLineWidth(val)}
+              value={lineWidth}
+            />
+            <ScrollView
+              horizontal
+              contentContainerStyle={styles.center}
+              style={styles.colorPickerContainer}
+            >
+              {colors.map(color => {
+                return <TouchableOpacity
+                  key={color}
+                  onPress={() => this._updateStrokeStyle(color)}
+                  style={{
+                    backgroundColor: color,
+                    borderRadius: 50,
+                    borderWidth: 1,
+                    borderColor: 'black',
+                    width: this.state.strokeStyle === color ? 40 : 30,
+                    height: this.state.strokeStyle === color ? 40 : 30,
+                    marginLeft: 12,
+                    marginRight: 12
+                  }}
+                />;
+              })}
+            </ScrollView>
+          </View>
         </View>
       </SafeAreaView>
     );
@@ -142,11 +186,13 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center'
   },
-  colorPickerContainer: {
+  toolsContainer: {
     width: '100%',
-    height: 'auto',
-    backgroundColor: 'lightgray',
-    flexDirection: 'row'
+    backgroundColor: 'lightgray'
+  },
+  colorPickerContainer: {
+    flexDirection: 'row',
+    height: 50
   },
   iconButtons: {
     padding: 10
@@ -159,7 +205,8 @@ const styles = StyleSheet.create({
   },
   glViewContainer: {
     width: '100%',
-    height: '90%'
+    height: '90%',
+    backgroundColor: 'white'
   },
   headerText: {
     marginLeft: 10,
@@ -173,6 +220,11 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     alignItems: 'stretch',
-    backgroundColor: '#fff'
+    backgroundColor: 'lightgray'
+  },
+  brushWidthSlider: {
+    width: '90%',
+    marginLeft: 'auto',
+    marginRight: 'auto'
   }
 });
