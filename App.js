@@ -20,10 +20,14 @@ const colors = [
   'orange',
   'yellow',
   'green',
+  'lime',
+  'navy',
   'blue',
+  'aquamarine',
   'pink',
   'purple',
   'gray',
+  'silver',
   'white'
 ];
 
@@ -162,7 +166,7 @@ export default class App extends React.Component {
               step={1}
               minimumTrackTintColor={strokeStyle}
               minimumValue={1}
-              maximumValue={20}
+              maximumValue={50}
               onValueChange={val => this._updateLineWidth(val)}
               value={lineWidth}
             />
