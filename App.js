@@ -105,8 +105,23 @@ export default class App extends React.Component {
   };
 
   _clearCanvas = () => {
-    this._ctx.clearRect(0, 0, this._ctx.width, this._ctx.height);
-    this._ctx.flush();
+    Alert.alert(
+      'Confirm',
+      'Are you sure you want to clear the canvas?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'OK', onPress: () => {
+            this._ctx.clearRect(0, 0, this._ctx.width, this._ctx.height);
+            this._ctx.flush();
+          }
+        },
+      ],
+      {cancelable: false},
+    );
   };
 
   _saveCanvas = async () => {
