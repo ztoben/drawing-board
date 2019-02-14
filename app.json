@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "Drawing Board",
+    "description": "A drawing app using expo-2d-context",
     "slug": "drawing-board",
     "privacy": "public",
     "sdkVersion": "32.0.0",
