@@ -5,7 +5,8 @@
     "privacy": "public",
     "sdkVersion": "32.0.0",
     "platforms": [
-      "ios"
+      "ios",
+      "android"
     ],
     "githubUrl": "https://github.com/ztoben/drawing-board",
     "version": "1.0.0",
@@ -23,7 +24,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ztoben.drawingboard"
     }
   }
 }
