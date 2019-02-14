@@ -42,7 +42,6 @@ export default class App extends React.Component {
     this._prevX = undefined;
     this._prevY = undefined;
     this._panResponder = this._createPanResponder();
-    this._locationPageOffset = 180;
   }
 
   async componentDidMount() {
@@ -69,17 +68,17 @@ export default class App extends React.Component {
       onMoveShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponderCapture: () => true,
 
-      onPanResponderGrant: (evt, gestureState) => {
-        const {x0, y0} = gestureState;
+      onPanResponderGrant: (evt) => {
+        const x = evt.nativeEvent.locationX.toFixed(2) * 2;
+        const y = evt.nativeEvent.locationY.toFixed(2) * 2;
 
-        if (!this._prevX) this._prevX = x0 * 2;
-        if (!this._prevY) this._prevY = (y0 * 2) - this._locationPageOffset;
+        if (!this._prevX) this._prevX = x;
+        if (!this._prevY) this._prevY = y;
       },
-      onPanResponderMove: (evt, gestureState) => {
+      onPanResponderMove: (evt) => {
         const {strokeStyle, lineWidth} = this.state;
-        const {moveX, moveY} = gestureState;
-        const x = moveX * 2;
-        const y = (moveY * 2) - this._locationPageOffset;
+        const x = evt.nativeEvent.locationX.toFixed(2) * 2;
+        const y = evt.nativeEvent.locationY.toFixed(2) * 2;
 
         this.drawSegment({
           x,
