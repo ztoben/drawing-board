@@ -56,8 +56,9 @@ export default class App extends React.Component {
     this._ctx.lineTo(x, y);
     this._ctx.strokeStyle = strokeStyle;
     this._ctx.lineWidth = lineWidth;
-    this._ctx.stroke();
+    this._ctx.lineCap = 'round';
     this._ctx.closePath();
+    this._ctx.stroke();
     this._ctx.flush();
   }
 
